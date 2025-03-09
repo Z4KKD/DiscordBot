@@ -10,9 +10,9 @@ A fun Discord bot that allows you to gamble with friends! Engage in daily challe
   :moneybag: `!d`  
   Claim your daily 300 Bux and get started! The bot will automatically claim your daily Bux after each day.
 
-- **Fight Players:**  
-  :skull: `!f <amount>`  
-  Fight players (or a bot) for a chance to win a random battle with a bet. Each fight has a random winner!
+- **Parleys:**  
+  :skull: `!p <amount>`  
+  Place a parley on 3 players to get the most points!
 
 - **Challenge a Friend:**  
   :boxing_glove: `!c <user> <amount>`  
