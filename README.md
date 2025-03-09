@@ -39,13 +39,3 @@ A fun Discord bot that allows you to gamble with friends! Engage in daily challe
   Displays all available commands and features of the bot.
 
 ---
-
-## How to Use
-
-1. **Install Dependencies**  
-   Clone the repository and install dependencies using `npm` or `yarn`.
-
-   ```bash
-   git clone https://github.com/yourusername/discord-gambling-bot.git
-   cd discord-gambling-bot
-   npm install
