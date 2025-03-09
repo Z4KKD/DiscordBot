@@ -686,6 +686,7 @@ def load_gamers():
 
 @bot.command()
 async def p(ctx, amount: int):
+    """"Place a parley on 3 players to get the most points"""
     user_id = str(ctx.author.id)
     user_name = ctx.author.name  
     bux_data = load_bux()
@@ -790,7 +791,7 @@ async def daily_event():
 
 @bot.command()
 async def sp(ctx):
-    """Start the parley early (Messes up the daily timer of 7:30)"""
+    """Start the parley early (Parleys will start every hour after)"""
     await ctx.send("Starting the event now...")
     await daily_event()
 
