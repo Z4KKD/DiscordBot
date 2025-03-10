@@ -489,10 +489,6 @@ async def bj(ctx, bet: int):
     if bet <= 0:
         await ctx.send("You must bet a positive amount of bux!")
         return
-    
-    if bet > 1000:
-        await ctx.send("The maximum bet amount is 1000 bux.")
-        return
 
     bux_data = load_bux()
 
