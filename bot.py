@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import random
 import time
 import itertools
+import threading
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -14,8 +15,13 @@ intents.reactions = True
 bot = commands.Bot(command_prefix="!", intents=intents, case_insensitive=True)
 
 BUX_FILE = 'bux.json'
+PARLEYS_FILE = 'parleys.json'
+GAMERS_FILE = 'gamers.json'
 BACKUP_DIR = "backups"
 LAST_BACKUP_FILE = os.path.join(BACKUP_DIR, "last_backup.txt")
+bux_lock = threading.Lock()
+parleys_lock = threading.Lock()
+gamers_lock = threading.Lock()
 
 if not os.path.exists(BUX_FILE):
     with open(BUX_FILE, 'w') as f:
@@ -25,17 +31,21 @@ if not os.path.exists(BACKUP_DIR):
     os.makedirs(BACKUP_DIR)
 
 def load_bux():
-    try:
-        with open(BUX_FILE, 'r') as f:
-            return json.load(f)
-    except (json.JSONDecodeError, FileNotFoundError):
-        print("Error: Invalid or missing bux.json. Returning empty data.")
-        return {}
+    """Loads the bux data from the file, returning empty if there's an error or file missing."""
+    with bux_lock:  # Lock for thread-safe operations
+        try:
+            with open(BUX_FILE, 'r') as f:
+                return json.load(f)
+        except (json.JSONDecodeError, FileNotFoundError):
+            print("Error: Invalid or missing bux.json. Returning empty data.")
+            return {}
 
 def save_bux(data):
-    with open(BUX_FILE, 'w') as f:
-        json.dump(data, f, indent=4)
-
+    """Save the bux data back to the file safely."""
+    with bux_lock:  # Lock for thread-safe operations
+        with open(BUX_FILE, 'w') as f:
+            json.dump(data, f, indent=4)
+#Daily
 @bot.command()
 async def d(ctx):
     """Claim daily bux."""
@@ -102,7 +112,7 @@ async def on_ready():
     print(f'Logged in as {bot.user}')
     if not daily_reward_task.is_running():
         daily_reward_task.start()
-
+#Challenge
 @bot.command()
 async def c(ctx, member: discord.Member, bet: float):
     """!c <user> <amount> ( Challenge a user to a unique bet on your own with amount )"""
@@ -174,9 +184,9 @@ async def c(ctx, member: discord.Member, bet: float):
                 
                 else:  # Players disagreed → Bet voided with a penalty
                     for user in [user_id, opponent_user_id]:
-                        bux_data[user]["bux"] = max(0, bux_data[user]["bux"] - 25)
+                        bux_data[user]["bux"] = max(0, bux_data[user]["bux"] - 250)
                     save_bux(bux_data)
-                    await ctx.send("Bet voided! A 25 bux penalty has been applied to both players for flaking.")
+                    await ctx.send("Bet voided! A 250 bux penalty has been applied to both players for flaking.")
                     
             except asyncio.TimeoutError:
                 await ctx.send("Bet voided due to inactivity.")
@@ -194,34 +204,40 @@ async def c(ctx, member: discord.Member, bet: float):
 def has_enough_bux(user_id: str, amount: float) -> bool:
     """Checks if a user has enough bux to participate in a bet."""
     return load_bux().get(user_id, {}).get("bux", 0) >= amount
-
+#Help
 @bot.command()
 async def h(ctx):
     """Custom help command. *** USE THIS FOR HELP ***"""
     help_message = """
         ***Ranks***
-- Challenger🥊 112,000 bux
-- Grandmaster🏆 56,000 bux
-- Diamond💎 28,000 bux
-- Emerald❇️ 14,000  bux
-- Platinum🎖️ 7,000 bux
-- Gold🏅  3,500 bux
-- Silver🥈 1,750 bux
-- Bronze🥉 0 bux
+- Challenger🥊 1,000,000,000 bux
+- Grandmaster🏆 150,000,000 bux
+- Master⭐    30,000,000 bux
+- Champion👑 7,000,000 bux
+- Diamond💎 1,750,000 bux
+- Emerald❇️ 500,000  bux
+- Ruby🩸 150,000 bux
+- Platinum🎖️ 50,000 bux
+- Gold🏅   20,000 bux
+- Silver🥈 10,000 bux
+- Bronze🥉 5,000 bux
+- Iron🦾 0 bux
 
 **How it works** : **Bot Commands**
-- :moneybag:  **Daily**: `!d`  Claim your daily 750 Bux and it will automatically claim after, this is how you start! .)
-- :boxing_glove: **Challenge**: `!c <user> <amount>` ( Bet a user to a unique bet (anything) and agree on a winner or pay fees ) 
-- :ninja_tone1: **Steal**: `!s` (Attempt to steal, win a prize, or face a penalty.)
-- :black_joker: **Blackjack**: `!bj` `<amount>` ( Bet on a game of blackjack )
-- :basketball: **Parley** `!p` `<amount>` ( Place a parley on 3 players to get the most points 1st place gets 10x their bet)
-- :money_with_wings: **Bank**: `!b` (Check the amount of bux you have) If your at 100 bux or lower you get welfare!. 
-- 🏆**Leaderboards**: `!l` (Check your rank on the leaderboards.)
+- :moneybag:  **Daily**: `!d`  ( Claim your daily 750 Bux and it will automatically claim after, this is how you start! )
+- :boxing_glove: **Challenge**: `!c <user> <amount>` ( Bet a user to a unique bet (anything) and agree on a winner or pay fees! ) 
+- :ninja_tone1: **Steal**: `!s` `<user>` ( Attempt to steal, win a prize, or face a penalty! )
+- :black_joker: **Blackjack**: `!bj` `<amount>` ( Bet on a game of blackjack! )
+- :basketball: **Parley** `!p` `<amount>` ( Place a parley on 3 players to get the most points 1st place gets 15x their bet! )
+- :unlock: **Unlocker** `!u` `<amount>` ( Unlock a safe by guessing a 4-digit password! ) 
+- :slot_machine: **Jackpot** `!j` `<amount>` ( Jackpot slot machine, Spin and try your luck! )
+- :money_with_wings: **Bank**: `!b` (Check the amount of bux you have. If your at 100 bux or lower you get welfare! )
+- 🏆**Leaderboards**: `!l` ( Check your rank on the leaderboards! )
 - :grey_question: **Help**: `!h` ( Shows this )
     """
     await ctx.send(help_message)
 
-    
+#AssignRoles    
 async def assign_role_based_on_bux(ctx, member):
 
     bux_data = load_bux()
@@ -234,16 +250,19 @@ async def assign_role_based_on_bux(ctx, member):
     bux = bux_data[user_id]["bux"]
     
     role_name = (
-        "Challenger🥊" if bux >= 112000 else
-        "Grandmaster🏆" if bux >= 56000 else
-        "Diamond💎" if bux >= 28000 else
-        "Emerald❇️" if bux >= 14000 else
-        "Platinum🎖️" if bux >= 7000 else
-        "Gold🏅" if bux >= 3500 else
-        "Silver🥈" if bux >= 1750 else
-        "Bronze🥉"
+        "Challenger🥊" if bux >= 1000000000 else
+        "Grandmaster🏆" if bux >= 150000000 else
+        "Master⭐" if bux >= 30000000 else
+        "Champion👑" if bux >= 7000000 else
+        "Diamond💎" if bux >= 1750000 else
+        "Emerald❇️" if bux >= 500000  else
+        "Ruby🩸" if bux >= 150000 else
+        "Platinum🎖️" if bux >= 50000 else
+        "Gold🏅" if bux >= 20000 else
+        "Silver🥈" if bux >= 10000 else
+        "Bronze🥉" if bux >= 5000 else
+        "Iron🦾"
     )
-
     role = discord.utils.get(ctx.guild.roles, name=role_name)
 
     if not role:
@@ -254,7 +273,7 @@ async def assign_role_based_on_bux(ctx, member):
     if current_role:
         return
 
-    for rank in ["Challenger🥊", "Grandmaster🏆", "Diamond💎", "Emerald❇️", "Platinum🎖️",  "Gold🏅", "Silver🥈", "Bronze🥉"]:
+    for rank in ["Challenger🥊", "Grandmaster🏆", "Master⭐","Champion👑", "Diamond💎", "Emerald❇️", "Ruby🩸", "Platinum🎖️",  "Gold🏅", "Silver🥈", "Bronze🥉", "Iron🦾"]:
         if current_role := next((r for r in member.roles if r.name == rank), None):
             await member.remove_roles(current_role)
             break
@@ -292,7 +311,7 @@ async def on_command_error(ctx, error):
     else:
         await ctx.send("An unexpected error occurred.")
         raise error 
-
+#AddBux
 @bot.command()
 async def ab(ctx, bux: float, member: discord.Member = None):
     """Admin only command to add bux to a user or all users !ab <amount> <user> (no user for all)"""
@@ -316,7 +335,7 @@ async def ab(ctx, bux: float, member: discord.Member = None):
 
     save_bux(bux_data)
 
-
+#RemoveBux
 @bot.command()
 async def rb(ctx, bux: float, member: discord.Member = None):
     """Admin only command to remove bux from a user or all users !rb <amount> <user> (no user for all)"""
@@ -342,7 +361,7 @@ async def rb(ctx, bux: float, member: discord.Member = None):
 
     save_bux(bux_data)
 
-
+#Leaderboards
 @bot.command()
 async def l(ctx):
     """!l (Check your rank on the leaderboards.)"""
@@ -381,7 +400,7 @@ def check_bux_entry(user_id):
     """Returns True if the user has an entry in bux_data, False otherwise."""
     bux_data = load_bux()
     return str(user_id) in bux_data
-
+#Balance
 @bot.command()
 async def b(ctx):
     """!b (Check the amount of bux you have) If your at 100 bux or lower u get welfare!"""
@@ -406,7 +425,7 @@ async def b(ctx):
 
 
 import random
-
+#Steal
 @bot.command()
 async def s(ctx, target: discord.User):
     """!s (Attempt to steal from another player, win a prize, or face a penalty.)"""
@@ -436,12 +455,12 @@ async def s(ctx, target: discord.User):
         return
 
     outcomes = [
-        {"chance": 0.025, "result": "prize", "amount": 3000, "message": f"{player_name} got away with stealing **1000 bux** from {target_mention}!"}, 
-        {"chance": 0.05, "result": "prize", "amount": 1500, "message": f"{player_name} successfully stole **750 bux** from {target_mention}!"}, 
-        {"chance": 0.10, "result": "prize", "amount": 750, "message": f"{player_name} snuck away with **500 bux** from {target_mention}!"}, 
-        {"chance": 0.40, "result": "penalty", "amount": 375, "message": f"{player_name} tried to steal from {target_mention} but {target_mention} got the better of them and robbed them of **250 bux**!"},  
-        {"chance": 0.20, "result": "penalty", "amount": 750, "message": f"{player_name} was caught stealing from {target_mention} and had to pay **500 bux** as a fine!"}, 
-        {"chance": 0.10, "result": "penalty", "amount": 1500, "message": f"{player_name} got arrested for stealing from {target_mention} and had to pay **750 bux** for bail!"}
+        {"chance": 0.025, "result": "prize", "amount": 3000, "message": f"{player_name} got away with stealing **3000 bux** from {target_mention}!"}, 
+        {"chance": 0.05, "result": "prize", "amount": 1500, "message": f"{player_name} successfully stole **1500 bux** from {target_mention}!"}, 
+        {"chance": 0.10, "result": "prize", "amount": 750, "message": f"{player_name} snuck away with **750 bux** from {target_mention}!"}, 
+        {"chance": 0.40, "result": "penalty", "amount": 375, "message": f"{player_name} tried to steal from {target_mention} but {target_mention} got the better of them and robbed them of **375 bux**!"},  
+        {"chance": 0.20, "result": "penalty", "amount": 750, "message": f"{player_name} was caught stealing from {target_mention} and had to pay **750 bux** as a fine!"}, 
+        {"chance": 0.10, "result": "penalty", "amount": 1500, "message": f"{player_name} got arrested for stealing from {target_mention} and had to pay **1500 bux** for bail!"}
     ]
 
     roll = random.random()
@@ -483,7 +502,7 @@ async def s(ctx, target: discord.User):
 
     await ctx.send(f"{player_name}, currently has {bux_data[str(player_id)]['bux']} bux")
     await assign_role_based_on_bux(ctx, ctx.author)
-
+#BlackJack
 @bot.command()
 async def bj(ctx, bet: float):
     """!bj <amount> ( Bet on a game of blackjack )"""
@@ -678,23 +697,32 @@ def generate_gamers():
     ]
 
 def load_parleys():
-    if os.path.exists('parleys.json'):
-        with open('parleys.json', 'r') as f:
-            return json.load(f)
-    return {}
+    """Loads the parlays data."""
+    with parleys_lock:  # Lock for thread-safe operations
+        if os.path.exists(PARLEYS_FILE):
+            with open(PARLEYS_FILE, 'r') as f:
+                return json.load(f)
+        return {}
 
 def save_parleys(data):
-    with open('parleys.json', 'w') as f:
-        json.dump(data, f, indent=4)
-def save_gamers(gamers):
-    with open('gamers.json', 'w') as f:
-        json.dump(gamers, f, indent=4)
+    """Saves the parlays data safely."""
+    with parleys_lock:  # Lock for thread-safe operations
+        with open(PARLEYS_FILE, 'w') as f:
+            json.dump(data, f, indent=4)
 
 def load_gamers():
-    if os.path.exists('gamers.json'):
-        with open('gamers.json', 'r') as f:
-            return json.load(f)
-    return []
+    """Loads the gamers data."""
+    with gamers_lock:  # Lock for thread-safe operations
+        if os.path.exists(GAMERS_FILE):
+            with open(GAMERS_FILE, 'r') as f:
+                return json.load(f)
+        return []
+
+def save_gamers(gamers):
+    """Saves the gamers data safely."""
+    with gamers_lock:  # Lock for thread-safe operations
+        with open(GAMERS_FILE, 'w') as f:
+            json.dump(gamers, f, indent=4)
 
 @bot.command()
 async def p(ctx, amount: float):
@@ -735,7 +763,7 @@ async def p(ctx, amount: float):
     try:
         msg = await bot.wait_for('message', check=check, timeout=30)
         chosen = list(map(int, msg.content.split()))
-        if len(chosen) != 3 or any(g not in range(1, 15) for g in chosen):
+        if len(chosen) != 3 or any(g not in range(1, 12) for g in chosen):
             await ctx.author.send("Invalid selection. Bet canceled.")
             bux_data[user_id]['bux'] += amount #refund
             return
@@ -762,7 +790,7 @@ async def daily_event():
     while True:
         gamers = generate_gamers()
         for gamer in gamers:
-            gamer['points'] = random.randint(1, 30)
+            gamer['points'] = random.randint(1, 37)
         save_gamers(gamers)
 
         # Sort gamers by points in descending order before displaying the leaderboard
@@ -783,10 +811,10 @@ async def daily_event():
             
             ranking_position = next((i for i, (combo, score) in enumerate(best_combos) if score == chosen_combo_score), None)
             if ranking_position is not None:
-                if ranking_position < 10:
-                    multiplier = max(10 - ranking_position, 0)  # 1st = 7x, 2nd = 6x, ..., 7th = 1x
+                if ranking_position < 15:
+                    multiplier = max(15 - ranking_position, 0) 
                 else:
-                    multiplier = max(0.99 - 0.01 * (ranking_position - 10), 0)  # Decreasing multiplier after 7th place
+                    multiplier = max(0.99 - 0.01 * (ranking_position - 15), 0)  
                 winnings = round(bet['bet'] * multiplier, 2)
                 bux_data[user_id] = bux_data.get(user_id, {'bux': 0})
                 bux_data[user_id]['bux'] += winnings
@@ -809,5 +837,164 @@ async def sp(ctx):
     """Start the parley early (Parleys will start every hour after)"""
     await ctx.send("Starting the event now...")
     await daily_event()
+
+#Unlocker fix the save bux and load bux it messes it up
+@bot.command()
+async def u(ctx, bet: float):
+    """!u <amount> (Unlock a safe by guessing a 3-digit password)"""
+
+    player_id = ctx.author.id  
+    user_id = str(ctx.author.id)
+
+    # Ensure player has a bux entry
+    if not check_bux_entry(user_id):
+        await ctx.send(f"{ctx.author.mention}, you need to claim your daily first with !d before you can play.")
+        return
+
+    # Check if player is already in a bet
+    if is_in_bet(player_id):
+        await ctx.send(f"{ctx.author.mention}, you already have an open bet. Please wait until it's settled.")
+        return  
+
+    if bet <= 0:
+        await ctx.send("You must bet a positive amount of bux!")
+        return
+
+    bux_data = load_bux()
+
+    if user_id not in bux_data or bux_data[user_id]["bux"] < bet:
+        await ctx.send("You don't have enough bux for this bet.")
+        return
+    
+    # Deduct bux from player
+    bux_data[str(player_id)]["bux"] -= bet
+    save_bux(bux_data)
+
+    # Start the game
+    code = [random.randint(0, 9) for _ in range(4)]  # Generate 3-digit code
+    attempts = 0
+    max_attempts = 5
+    start_time = asyncio.get_event_loop().time()
+
+    # Helper function to check guess and give feedback
+    def give_feedback(guess):
+        feedback = []
+        for i in range(4):
+            if guess[i] == code[i]:
+                feedback.append("✅")  # Correct digit in right position
+            elif guess[i] in code:
+                feedback.append("🔄")  # Correct digit, wrong position
+            else:
+                feedback.append("❌")  # Incorrect digit
+        return "".join(feedback)
+
+    # Inform player to check DM
+    await ctx.send(f"{ctx.author.mention}, check your DMs! You are about to try to unlock a safe!")
+
+    # DM the player to start the game
+    try:
+        dm_channel = await ctx.author.create_dm()
+        await dm_channel.send(f"**Welcome to Unlocker!**\nYou have {max_attempts} attempts to guess the 4-digit code. Enter the code without spaces or dashes. Good luck!")
+        await dm_channel.send(f" ✅ Correct digit in right position 🔄 Correct digit, wrong position ❌ Incorrect digit ")
+        await dm_channel.send(f"  Reward based on attempts: 1st = 5x, 2nd = 4x ~ 5th = 1x ")
+
+    except Exception as e:
+        await ctx.send(f"{ctx.author.mention}, I couldn't send you a DM. Please ensure you have DMs open for me.")
+        return
+
+    # Player's turn
+    while attempts < max_attempts:
+        await dm_channel.send(f"Attempt {attempts + 1}/{max_attempts}: Enter a 4-digit code:")
+
+        def check(message):
+            # Validate that message is a 3-digit number and from the correct user
+            return (message.author.id == player_id and 
+                    message.content.isdigit() and 
+                    len(message.content) == 4)
+        
+        try:
+            message = await bot.wait_for('message', check=check, timeout=60.0)
+        except asyncio.TimeoutError:
+            await dm_channel.send(f"You took too long! The game ends.")
+            break
+
+        # Parse the guess into a list of integers
+        guess = [int(digit) for digit in message.content]
+        attempts += 1
+
+        feedback = give_feedback(guess)
+        
+        if guess == code:
+            reward = bet * (6 - attempts)  # Reward based on attempts: 1st = 5x, 2nd = 4x, ..., 5th = 1x
+            await dm_channel.send(f"**Unlocked!** You win {reward} bux!")
+            bux_data[str(player_id)]["bux"] += reward
+            save_bux(bux_data)
+            break
+        elif attempts == max_attempts:
+            await dm_channel.send(f"**Game Over!** You failed to crack the code. The correct code was: {''.join(map(str, code))}.")
+            break
+        else:
+            await dm_channel.send(f"Feedback: {feedback} - Keep guessing!")
+
+    open_bets[player_id] = False  
+    await assign_role_based_on_bux(ctx, ctx.author)
+
+#Jackpot
+symbols = ["🍒", "🍀", "💎", "🍋", "7️⃣"]
+@bot.command()
+async def j(ctx, bet_amount: float):
+    """!j <bet_amount> ( Jackpot slot machine, Spin and try your luck)"""
+    
+    player_id = ctx.author.id
+    user_id = str(ctx.author.id)
+    
+    # Ensure player has enough bux to spin the slot machine
+    if not check_bux_entry(user_id):
+        await ctx.send(f"{ctx.author.mention}, you need to claim your daily first with !d before you can play.")
+        return
+    
+    # Check if player has enough bux to place the bet
+    bux_data = load_bux()
+    if user_id not in bux_data or bux_data[user_id]["bux"] < bet_amount:
+        await ctx.send(f"{ctx.author.mention}, you don't have enough bux for this bet.")
+        return
+    
+    # Deduct bet amount from the player's balance
+    bux_data[user_id]["bux"] -= bet_amount
+    save_bux(bux_data)
+    
+    # Spin the slot machine (3 reels)
+    reel_1 = random.choice(symbols)
+    reel_2 = random.choice(symbols)
+    reel_3 = random.choice(symbols)
+    
+    # Display the results in the chat
+    await ctx.send(f" 7️⃣x30, 💎x15, 🍒x9, 🍀x7, 🍋x3\n {ctx.author.mention} spun the slot machine! 🎰\n{reel_1} | {reel_2} | {reel_3}")
+    
+    # Check for winning combinations
+    payout = 0
+    
+    # Winning conditions
+    if reel_1 == reel_2 == reel_3:
+        if reel_1 == "7️⃣":
+            payout = bet_amount * 30  # Jackpot!
+        elif reel_1 == "💎":
+            payout = bet_amount * 15
+        elif reel_1 == "🍀":
+            payout = bet_amount * 9
+        elif reel_1 == "🍒":
+            payout = bet_amount * 7
+        else:
+            payout = bet_amount * 3
+    
+    # If no winning combination, display loss message
+    if payout == 0:
+        await ctx.send(f"{ctx.author.mention}, you didn't win this time. Better luck next spin!")
+    else:
+        # Add winnings to the player's bux balance
+        bux_data[user_id]["bux"] += payout
+        save_bux(bux_data)
+        await assign_role_based_on_bux(ctx, ctx.author)
+        await ctx.send(f"Congrats, {ctx.author.mention}! You won {payout} bux!")
 
 bot.run('Your Token Here')
