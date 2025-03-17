@@ -18,7 +18,7 @@ A fun Discord bot that lets you gamble with friends! Engage in daily challenges,
 - :basketball: **Parley**: `!p <amount>`  
   Place a parley on 3 players to get the most points!
 
-- :ninja_tone1: **Unlocker**: `!u <amount>`  
+- :cat: **Unlocker**: `!u <amount>`  
   Unlock a safe by guessing a 4-digit password.
 
 - :slot_machine: **Jackpot**: `!j <amount>` `<amount_of_spins>`  
