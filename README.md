@@ -1,41 +1,39 @@
 # Discord Gambling Bot
 
-A fun Discord bot that allows you to gamble with friends! Engage in daily challenges, fight random battles, play blackjack, and steal from others—all while tracking your bux and climbing the leaderboards.
+A fun Discord bot that lets you gamble with friends! Engage in daily challenges, play blackjack, place parlays, and more—track your bux and climb the leaderboards!
 
 ---
 
-## Features
+## Bot Commands
 
-- **Claim Daily Bux:**  
-  :moneybag: `!d`  
-  Claim your daily 300 Bux and get started! The bot will automatically claim your daily Bux after each day.
+- :moneybag: **Daily**: `!d`  
+  Claim your daily Bux and it will automatically claim after, this is how you start!
 
-- **Parleys:**  
-  :skull: `!p <amount>`  
+- :green_heart: **Give**: `!g <user> <amount>`  
+  Give a specified amount of Bux to another user.
+
+- :black_joker: **Blackjack**: `!bj <amount>`  
+  Bet on a game of blackjack! 
+
+- :basketball: **Parley**: `!p <amount>`  
   Place a parley on 3 players to get the most points!
 
-- **Challenge a Friend:**  
-  :boxing_glove: `!c <user> <amount>`  
-  Bet a user in a unique challenge (e.g., agree on a winner or face some fees). Compete for a chance to win it all!
+- :ninja_tone1: **Unlocker**: `!u <amount>`  
+  Unlock a safe by guessing a 4-digit password.
 
-- **Steal from Others:**  
-  :cat: `!s`  
-  Attempt to steal bux from others. If you succeed, you win a prize. Fail, and you might face a penalty.
+- :slot_machine: **Jackpot**: `!j <amount>` `<amount_of_spins>`  
+  Spin the jackpot slot machine with a progressive jackpot and try your luck!
 
-- **Play Blackjack:**  
-  :black_joker: `!bj <amount>`  
-  Bet on a game of blackjack against other players or the bot.
+- :arrow_up_down: **High/Low**: `!hl <amount>`  
+  Play a high/low card game with increasing multipliers.
 
-- **Check Your Bank Balance:**  
-  :money_with_wings: `!b`  
-  Check how many Bux you currently have. If you're at 0, you can claim welfare.
+- :money_with_wings: **Bank**: `!b`  
+  Check your current balance of Bux. If you're broke, you'll get welfare!
 
-- **View Leaderboards:**  
-  🏆 `!l`  
+- 🏆 **Leaderboards**: `!l`  
   View your rank on the leaderboards and see who’s winning!
 
-- **Get Help:**  
-  :grey_question: `!h`  
-  Displays all available commands and features of the bot.
+- :grey_question: **Help**: `!h`  
+  Display all available commands and features of the bot.
 
 ---
