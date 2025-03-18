@@ -78,16 +78,32 @@ async def d(ctx):
 
 #Give
 @bot.command()
-async def g(ctx, member: discord.Member, amount: float):
+async def g(ctx, member: discord.Member, amount: str):
     """!g <user> <amount> (Give a specified amount of bux to another user)"""
     giver_id = str(ctx.author.id)
     receiver_id = str(member.id)
     player_id = ctx.author.id
+    player2_id = member.id
     giver_data = load_bux(giver_id)
     receiver_data = load_bux(receiver_id)
 
+    # Check if the amount is "all"
+    if amount.lower() == "all":
+        amount = giver_data["bux"]  # Set the amount to all remaining bux
+    else:
+        # Check if the amount can be converted to a float
+        try:
+            amount = float(amount.replace(",", ""))
+        except ValueError:
+            await ctx.send(f"{ctx.author.mention}, please provide a valid number for the amount.")
+            return
+
+
     if is_in_bet(player_id):
         await ctx.send(f"{ctx.author.mention}, you already have an open bet. Please wait until it's settled.")
+        return  
+    if is_in_bet(player2_id):
+        await ctx.send(f"{member.mention}, you already have an open bet. Please wait until it's settled.")
         return  
 
     if giver_data["bux"] < amount:
@@ -124,29 +140,29 @@ async def h(ctx):
     """Custom help command. *** USE THIS FOR HELP ***"""
     help_message = """
         ***Ranks***     
-- Challenger🥊 3,000,000,000,000,000 bux 
-- High Roller💳 150,000,000,000,000 bux
-- Grandmaster🏆 9,999,999,999,999 bux 
-- Master⭐ 730,420,420,420 bux
-- Champion👑 69,420,420,420 bux
-- Lucky🍀 7,777,777,777 bux
-- Obsidian🐱‍👤 1,993,730,420 bux
-- Diamond💎 150,000,000 bux
-- Emerald❇️ 30,000,000 bux
-- Ruby🩸 7,000,000 bux
-- Platinum🎖️ 1,750,000 bux
-- Gold🏅 500,000 bux
-- Silver🥈 150,000 bux
-- Bronze🥉 50,000 bux
+- Challenger🥊 100,000,000,000,000,000,000,000,000,000,000,000,000,000,000,000 bux 
+- High Roller💳 100,000,000,000,000,000,000,000,000,000,000,000,000,000,000 bux
+- Grandmaster🏆 100,000,000,000,000,000,000,000,000,000,000,000,000,000 bux 
+- Master⭐ 100,000,000,000,000,000,000,000,000,000,000,000,000 bux
+- Champion👑 100,000,000,000,000,000,000,000,000,000,000,000 bux
+- Lucky🍀 100,000,000,000,000,000,000,000,000,000,000 bux
+- Obsidian🐱‍👤 100,000,000,000,000,000,000,000,000,000 bux
+- Diamond💎 100,000,000,000,000,000,000,000,000 bux
+- Emerald❇️ 100,000,000,000,000,000,000 bux
+- Ruby🩸 100,000,000,000,000,000 bux
+- Platinum🎖️ 100,000,000,000,000 bux
+- Gold🏅 100,000,000,000 bux
+- Silver🥈 100,000,000 bux
+- Bronze🥉 100,000 bux
 - Brokie🐀 0 bux
 
-**How it works** : **Bot Commands**
+**How it works** : **Bot Commands** ( for amount you can use "all" for all in)
 - :moneybag:  **Daily**: `!d`  ( Claim your daily Bux and it will automatically claim after, this is how you start! )
 - :green_heart:  **Give**: `!g <user> <amount>` ( Give a specified amount of bux to another user ) 
 - :black_joker: **Blackjack**: `!bj` `<amount>` ( Bet on a game of blackjack! )
 - :basketball: **Parley** `!p` `<amount>` ( Place a parley on 3 players to get the most points! )
 - :ninja_tone1: **Unlocker** `!u` `<amount>` ( Unlock a safe by guessing a 4-digit password! ) 
-- :slot_machine: **Jackpot** `!j` `<amount>` `<amount_of_spins>` ( Jackpot slot machine with a progressive jackpot. Spin and try your luck!  )
+- :slot_machine: **Jackpot** `!j` `<amount>` `<amount_of_spins>` ( Jackpot slot machine, Spin and try your luck!  )
 - :arrow_up_down: **High/Low** `!hl` `<amount>` ( Play a high/low card game with increasing multipliers. )
 - :money_with_wings: **Bank**: `!b` (Check the amount of bux you have. If your broke you'll get welfare! )
 - 🏆 **Leaderboards**: `!l` ( Check your rank on the leaderboards! )
@@ -184,33 +200,33 @@ async def assign_role_based_on_bux(ctx, member):
 #GetRoles
 def get_role_name(bux):
     """Returns the role name based on the amount of bux."""
-    if bux >= 3_000_000_000_000_000:
+    if bux >= 100_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000:
         return "Challenger🥊"
-    elif bux >= 150_000_000_000_000:
+    elif bux >= 100_000_000_000_000_000_000_000_000_000_000_000_000_000_000:
         return "High Roller💳"
-    elif bux >= 9_999_999_999_999:
+    elif bux >= 100_000_000_000_000_000_000_000_000_000_000_000_000_000:
         return "Grandmaster🏆"
-    elif bux >= 730_420_420_420:
+    elif bux >= 100_000_000_000_000_000_000_000_000_000_000_000_000:
         return "Master⭐"
-    elif bux >= 69_420_420_420:
+    elif bux >= 100_000_000_000_000_000_000_000_000_000_000_000:
         return "Champion👑"
-    elif bux >= 7_777_777_777:
+    elif bux >= 100_000_000_000_000_000_000_000_000_000_000:
         return "Lucky🍀"
-    elif bux >= 1_993_730_420:
+    elif bux >= 100_000_000_000_000_000_000_000_000_000:
         return "Obsidian🐱‍👤"
-    elif bux >= 150_000_000:
+    elif bux >= 100_000_000_000_000_000_000_000_000:
         return "Diamond💎"
-    elif bux >= 30_000_000:
+    elif bux >= 100_000_000_000_000_000_000:
         return "Emerald❇️"
-    elif bux >= 7_000_000:
+    elif bux >= 100_000_000_000_000_000:
         return "Ruby🩸"
-    elif bux >= 1_750_000:
+    elif bux >= 100_000_000_000_000:
         return "Platinum🎖️"
-    elif bux >= 500_000:
+    elif bux >= 100_000_000_000:
         return "Gold🏅"
-    elif bux >= 150_000:
+    elif bux >= 100_000_000:
         return "Silver🥈"
-    elif bux >= 50_000:
+    elif bux >= 100_000:
         return "Bronze🥉"
     else:
         return "Brokie🐀"
@@ -248,8 +264,16 @@ async def on_command_error(ctx, error):
     
 # AddBux Command
 @bot.command()
-async def ab(ctx, bux: float, member: discord.Member = None):
+async def ab(ctx, bux: str, member: discord.Member = None):
     """Admin only command to add bux to a user or all users !ab <amount> <user> (no user for all)"""
+
+    try:
+        bux = float(bux.replace(",", ""))
+    except ValueError:
+            await ctx.send(f"{ctx.author.mention}, please provide a valid number for the bet amount.")
+            return
+
+
     if not ctx.author.guild_permissions.administrator:
         await ctx.send("You do not have the required permissions to use this command.")
         return
@@ -277,8 +301,14 @@ async def ab(ctx, bux: float, member: discord.Member = None):
 
 # RemoveBux Command
 @bot.command()
-async def rb(ctx, bux: float, member: discord.Member = None):
+async def rb(ctx, bux: str, member: discord.Member = None):
     """Admin only command to remove bux from a user or all users !rb <amount> <user> (no user for all)"""
+
+    try:
+        bux = float(bux.replace(",", ""))
+    except ValueError:
+            await ctx.send(f"{ctx.author.mention}, please provide a valid number for the bet amount.")
+            return
     if not ctx.author.guild_permissions.administrator:
         await ctx.send("You do not have the required permissions to use this command.")
         return
@@ -360,17 +390,25 @@ def check_bux_entry(user_id: str):
 @bot.command()
 async def b(ctx):
     """!b (Check the amount of bux you have) If you're broke, you'll get welfare!"""
+
+    player_id = ctx.author.id  
     user_id = str(ctx.author.id)
     user_data = load_bux(user_id)
 
     if user_data["username"] == "Unknown":
         await ctx.send(f"{ctx.author.mention}, you need to claim your daily first with `!d`.")  # Ensure they have data
         return
-
+    
+    if is_in_bet(player_id):
+        await ctx.send(f"{ctx.author.mention}, you already have an open bet. Please wait until it's settled.")
+        return  
+    
     bux = user_data["bux"]
     formatted_bux = f"{bux:,}" 
     await ctx.send(f"{ctx.author.name}, you have {formatted_bux} bux.")
-    
+
+    await asyncio.sleep(1)  # Wait 
+
     # Welfare
     if bux <= 2500:
         welfare_bux = 5000
@@ -390,15 +428,62 @@ async def b(ctx):
         save_bux(user_id, user_data)  # Save the updated user data
 
     await assign_role_based_on_bux(ctx, ctx.author)
+    next_rank_name, next_rank_bux = get_next_rank(bux)
+    if next_rank_name and next_rank_bux:
+        bux_needed = next_rank_bux - bux
+        progress_percentage = (bux / next_rank_bux) * 100
+        await ctx.send(f"📈 {ctx.author.name}, you need **{bux_needed:,}** more bux to reach **{next_rank_name}** ({progress_percentage:.2f}% there!).")
+
+def get_next_rank(bux):
+    """Returns the next rank name and the required bux for it."""
+    rank_thresholds = [
+        (100_000_000_000_000_000_000_000_000_000_000_000_000_000_000_000, "Challenger🥊"),
+        (100_000_000_000_000_000_000_000_000_000_000_000_000_000_000, "High Roller💳"),
+        (100_000_000_000_000_000_000_000_000_000_000_000_000_000, "Grandmaster🏆"),
+        (100_000_000_000_000_000_000_000_000_000_000_000_000, "Master⭐"),
+        (100_000_000_000_000_000_000_000_000_000_000_000, "Champion👑"),
+        (100_000_000_000_000_000_000_000_000_000_000, "Lucky🍀"),
+        (100_000_000_000_000_000_000_000_000_000, "Obsidian🐱‍👤"),
+        (100_000_000_000_000_000_000_000_000, "Diamond💎"),
+        (100_000_000_000_000_000_000, "Emerald❇️"),
+        (100_000_000_000_000_000, "Ruby🩸"),
+        (100_000_000_000_000, "Platinum🎖️"),
+        (100_000_000_000, "Gold🏅"),
+        (100_000_000, "Silver🥈"),
+        (100_000, "Bronze🥉"),
+        (0, "Brokie🐀")
+    ]
+
+    # Find the current rank and the next rank
+    for i, (threshold, rank) in enumerate(rank_thresholds):
+        if bux >= threshold:
+            if i == 0:
+                return None, None  # Already at the highest rank
+            
+            next_rank_name, next_rank_bux = rank_thresholds[i - 1][1], int(rank_thresholds[i - 1][0])
+
+            return next_rank_name, next_rank_bux
+
+    return None, None  # Should never hit this case
 
 
 #BlackJack
 @bot.command()
-async def bj(ctx, bet: float):
+async def bj(ctx, bet: str):
     """!bj <amount> ( Bet on a game of blackjack )"""
-
     player_id = ctx.author.id  
     user_id = str(ctx.author.id)
+    bux_data = load_bux(user_id)
+
+    if bet.lower() == "all":
+        bet = bux_data["bux"]  # Set the amount to all remaining bux
+    else:
+        # Check if the amount can be converted to a float
+        try:
+            bet = float(bet.replace(",", ""))
+        except ValueError:
+            await ctx.send(f"{ctx.author.mention}, please provide a valid number for the amount.")
+            return
 
     if not check_bux_entry(user_id):
         await ctx.send(f"{ctx.author.mention}, you need to claim your daily first with !d before you can play.")
@@ -409,13 +494,13 @@ async def bj(ctx, bet: float):
         return  
 
     if bet <= 0:
-        await ctx.send("You must bet a positive amount of bux!")
+        await ctx.send(f"{ctx.author.mention}You must bet a positive amount of bux!")
         return
     
-    bux_data = load_bux(user_id)
+
 
     if bux_data["bux"] < bet:
-        await ctx.send("You don't have enough bux for this bet.")
+        await ctx.send(f"{ctx.author.mention} You don't have enough bux for this bet.")
         return
     
     bux_data["bux"] -= bet
@@ -462,7 +547,7 @@ async def bj(ctx, bet: float):
     doubled_down = False
 
     while calculate_points(player_hand) < 21:
-        await ctx.send(f"Your current hand: {player_hand_str} (Total: {calculate_points(player_hand)})")
+        await ctx.send(f"{ctx.author.mention} Your current hand: {player_hand_str} (Total: {calculate_points(player_hand)})")
         options_message = await ctx.send("React with ✅ to hit, ❌ to stay, or 💰 to double down.")
         await options_message.add_reaction("✅")
         await options_message.add_reaction("❌")
@@ -474,7 +559,7 @@ async def bj(ctx, bet: float):
         try:
             reaction, _ = await bot.wait_for("reaction_add", check=check, timeout=300.0)
         except asyncio.TimeoutError:
-            await ctx.send("You took too long! You stand.")
+            await ctx.send(f"{ctx.author.mention} You took too long! You stand.")
             break
         
         if str(reaction.emoji) == "✅":  # Player chooses to hit
@@ -487,17 +572,17 @@ async def bj(ctx, bet: float):
                 return
         elif str(reaction.emoji) == "💰":  # Player chooses to double down
             if bux_data["bux"] < bet:
-                await ctx.send("You don't have enough bux to double down. This will be counted as a hit.")
+                await ctx.send(f"{ctx.author.mention},You don't have enough bux to double down. This will be counted as a hit.")
                 player_hand.append(deck.pop())  # Draw one more card (same as hitting)
                 player_hand_str = " ".join(player_hand)
-                await ctx.send(f"Your hand: {player_hand_str} (Total: {calculate_points(player_hand)})")
+                await ctx.send(f"{ctx.author.mention} Your hand: {player_hand_str} (Total: {calculate_points(player_hand)})")
                 break  # Proceed to ask for hit or stay again
             else:
                 bux_data["bux"] -= bet
                 save_bux(user_id, bux_data)
                 player_hand.append(deck.pop())  # Draw one more card
                 player_hand_str = " ".join(player_hand)
-                await ctx.send(f"You chose to double down! Your hand: {player_hand_str} (Total: {calculate_points(player_hand)})")
+                await ctx.send(f"{ctx.author.mention} You chose to double down! Your hand: {player_hand_str} (Total: {calculate_points(player_hand)})")
                 doubled_down = True
                 break  # End player's turn immediately after doubling down
         else:  # Player chooses to stand
@@ -505,13 +590,13 @@ async def bj(ctx, bet: float):
 
     dealer_hand_str = " ".join(dealer_hand)
     dealer_points = calculate_points(dealer_hand)
-    await ctx.send(f"Dealer's cards: {dealer_hand_str} (Total: {dealer_points})")
+    await ctx.send(f"{ctx.author.mention}, Dealer's cards: {dealer_hand_str} (Total: {dealer_points})")
 
     while dealer_points < 17:
         dealer_hand.append(deck.pop())
         dealer_points = calculate_points(dealer_hand)
         dealer_hand_str = " ".join(dealer_hand)
-        await ctx.send(f"Dealer draws: {dealer_hand[-1]}\nDealer's hand: {dealer_hand_str} (Total: {dealer_points})")
+        await ctx.send(f"{ctx.author.mention}, Dealer's hand: {dealer_hand_str} (Total: {dealer_points})")
 
     player_points = calculate_points(player_hand)
     if player_points > 21:         # Player busts
@@ -550,9 +635,9 @@ async def bj(ctx, bet: float):
 
 # Unlocker
 @bot.command()
-async def u(ctx, bet: float):
+async def u(ctx, bet: str):
     """!u <amount> (Unlock a safe by guessing a 4-digit password)"""
-
+    
     player_id = ctx.author.id  
     user_id = str(ctx.author.id)
 
@@ -563,19 +648,29 @@ async def u(ctx, bet: float):
     if is_in_bet(player_id):
         await ctx.send(f"{ctx.author.mention}, you already have an open bet. Please wait until it's settled.")
         return  
-
-    if bet <= 0:
-        await ctx.send("You must bet a positive amount of bux!")
-        return
-
+    
     bux_data = load_bux(user_id)  # Load the user's bux data
 
     if not bux_data:  # If user data does not exist
         await ctx.send(f"{ctx.author.mention}, you don't have any bux data. Please claim your daily reward first with !d.")
         return
+    
+    if bet.lower() == "all":
+        bet = bux_data["bux"]  # Set the amount to all remaining bux
+    else:
+        # Check if the amount can be converted to a float
+        try:
+            bet = float(bet.replace(",", ""))
+        except ValueError:
+            await ctx.send(f"{ctx.author.mention}, please provide a valid number for the amount.")
+            return
 
     if bux_data["bux"] < bet:
         await ctx.send(f"{ctx.author.mention}, you don't have enough bux for this bet. You currently have {bux_data['bux']} bux.")
+        return
+    
+    if bet <= 0:
+        await ctx.send("You must bet a positive amount of bux!")
         return
 
     bux_data["bux"] -= bet
@@ -584,7 +679,7 @@ async def u(ctx, bet: float):
     code = [random.randint(0, 9) for _ in range(4)]  # Generate 4-digit code
     attempts = 0
     max_attempts = 5
-    reward_multipliers = [4, 3, 2, 1.5, 0.75]  # Adjusted reward multipliers
+    reward_multipliers = [5, 4, 2.5, 1.75, 0.75]  # Adjusted reward multipliers
 
     def give_feedback(guess):
         feedback = []
@@ -603,7 +698,7 @@ async def u(ctx, bet: float):
         dm_channel = await ctx.author.create_dm()
         await dm_channel.send(f"**Welcome to Unlocker!**\nYou have {max_attempts} attempts to guess the 4-digit code. Enter the code without spaces or dashes. Good luck!")
         await dm_channel.send(" ✅ Correct digit in right position 🔄 Correct digit, wrong position ❌ Incorrect digit ")
-        await dm_channel.send("  Reward based on attempts: 1st = x4, 2nd = x3, 3rd = x2, 4th = x1.5, 5th = x0.75 ")
+        await dm_channel.send("  Reward based on attempts: 1st = x5, 2nd = x4, 3rd = x2.5, 4th = x1.75, 5th = x0.75 ")
 
     except Exception:
         await ctx.send(f"{ctx.author.mention}, I couldn't send you a DM. Please ensure you have DMs open for me.")
@@ -655,12 +750,23 @@ symbol_pool = (
 )
 
 @bot.command()
-@commands.cooldown(3, 15, commands.BucketType.user)
-async def j(ctx, bet_amount: float, spins: int = 1):
-    """!j <bet_amount> <spins> (Jackpot slot machine, Spin multiple times, progressive jackpot)"""
-
+@commands.cooldown(3, 14, commands.BucketType.user)
+async def j(ctx, bet_amount: str, spins: int = 1):
+    """!j <bet_amount> <spins> (Jackpot slot machine, Spin multiple times)"""
+    
     user_id = str(ctx.author.id)
     player_id = ctx.author.id
+    bux_data = load_bux(user_id)  # Load the user's bux data
+
+    if bet_amount.lower() == "all":
+        bet_amount = bux_data["bux"]  # Set the amount to all remaining bux
+    else:
+        # Check if the amount can be converted to a float
+        try:
+            bet_amount = float(bet_amount.replace(",", ""))
+        except ValueError:
+            await ctx.send(f"{ctx.author.mention}, please provide a valid number for the amount.")
+            return
 
     if not check_bux_entry(user_id):
         await ctx.send(f"{ctx.author.mention}, you need to claim your daily first with !d before you can play.")
@@ -670,40 +776,33 @@ async def j(ctx, bet_amount: float, spins: int = 1):
         await ctx.send(f"{ctx.author.mention}, you already have an open bet. Please wait until it's settled.")
         return  
 
-    if spins < 1 or spins > 25:
+    if spins < 1 or spins > 100:  # Allow up to 100 spins
+        await ctx.send(f"{ctx.author.mention}, you can spin between 1 and 100 times.")
         return
 
     total_cost = bet_amount * spins
-    bux_data = load_bux(user_id)  # Load the user's bux data
-
+    
     if bux_data["bux"] < total_cost:
         await ctx.send(f"{ctx.author.mention}, you don't have enough bux for {spins} spins. (Cost: {total_cost} bux)")
         return
     bux_data["bux"] -= total_cost
     save_bux(user_id, bux_data)  # Save the updated bux data
+
     payout_multipliers = {
-        "7️⃣": 37,
+        "7️⃣": 42,
         "💎": 17,
-        "🍒": 13,
+        "🍒": 15,
         "🍀": 11,
         "🍋": 7
     }
     partial_payout_multipliers = {
-        "💎": 7,  
-        "7️⃣": 11  
+        "💎": 5,  
+        "7️⃣": 16  
     }
 
     total_payout = 0
-    results = []
-    jackpot_chance = 0.000100
-    jackpot_win = bet_amount * 73
-
-    for _ in range(spins):    # Perform the spins
-        if random.random() < jackpot_chance:         # Check for the progressive jackpot
-            total_payout = jackpot_win
-            results.append(f"🎉 **Progressive Jackpot!** 🎉\n{ctx.author.mention} won {jackpot_win} bux!")
-            break
-
+    # Perform the spins without displaying results
+    for _ in range(spins):    
         reel_1 = random.choice(symbol_pool)
         reel_2 = random.choice(symbol_pool)
         reel_3 = random.choice(symbol_pool)
@@ -719,7 +818,6 @@ async def j(ctx, bet_amount: float, spins: int = 1):
             payout = bet_amount * partial_payout_multipliers.get(reel_1, 0)
 
         total_payout += payout
-        results.append(f"{reel_1} | {reel_2} | {reel_3} {'✅' if payout > 0 else '❌'}")
 
     bux_data["bux"] += total_payout
     save_bux(user_id, bux_data)  # Save the updated bux data
@@ -728,18 +826,29 @@ async def j(ctx, bet_amount: float, spins: int = 1):
     summary = (
         f"🎰 **Slot Machine Results** 🎰\n"
         f"Bet per spin: **{bet_amount}** bux | Total Spins: **{spins}** | Total Cost: **{total_cost}** bux\n"
-        f"**Total Payout:** {total_payout} bux\n\n"
-        + "\n".join(results[:25]) + ("\n...and more!" if spins > 25 else "")
+        f"**Total Payout:** {total_payout} bux"
     )
     await ctx.send(f"{ctx.author.mention}\n{summary}")
 
+
 #High'n'Low
 @bot.command()
-async def hl(ctx, bet: float):
+async def hl(ctx, bet: str):
     """!hl <amount> - Play a high/low card game with increasing multipliers."""
-    
+
     player_id = ctx.author.id  
     user_id = str(ctx.author.id)
+    bux_data = load_bux(user_id)
+    
+    if bet.lower() == "all":
+        bet = bux_data["bux"]  # Set the amount to all remaining bux
+    else:
+        # Check if the amount can be converted to a float
+        try:
+            bet = float(bet.replace(",", ""))
+        except ValueError:
+            await ctx.send(f"{ctx.author.mention}, please provide a valid number for the amount.")
+            return
 
     if not check_bux_entry(user_id):
         await ctx.send(f"{ctx.author.mention}, you need to claim your daily first with !d before you can play.")
@@ -750,13 +859,11 @@ async def hl(ctx, bet: float):
         return  
 
     if bet <= 0:
-        await ctx.send("You must bet a positive amount of bux!")
+        await ctx.send(f"{ctx.author.mention} You must bet a positive amount of bux!")
         return
-    
-    bux_data = load_bux(user_id)
 
     if bux_data["bux"] < bet:
-        await ctx.send("You don't have enough bux for this bet.")
+        await ctx.send(f"{ctx.author.mention} You don't have enough bux for this bet.")
         return
 
     open_bets[player_id] = True  # Mark player as having an open bet
@@ -783,9 +890,16 @@ async def hl(ctx, bet: float):
         await ctx.send(f"{ctx.author.mention}, starting card is **{current_card}**. React with ⬆️ for Higher or ⬇️ for Lower.")
 
         while True:
+            if not deck:  # If the deck is empty, end the game
+                winnings = bet * multiplier
+                bux_data["bux"] += winnings
+                save_bux(user_id, bux_data)
+                await ctx.send(f"{ctx.author.mention}, you've made it through the entire deck! You win **{winnings} bux!** 🎉")
+                break  # Exit the loop safely
+
             next_card = deck.pop()
 
-            options_message = await ctx.send(f"Current card: **{current_card}**\nReact with ⬆️ for Higher or ⬇️ for Lower.")
+            options_message = await ctx.send(f"{ctx.author.mention} Current card: **{current_card}**\nReact with ⬆️ for Higher or ⬇️ for Lower.")
             await options_message.add_reaction("⬆️")
             await options_message.add_reaction("⬇️")
 
@@ -793,7 +907,7 @@ async def hl(ctx, bet: float):
                 return user.id == player_id and str(reaction.emoji) in ["⬆️", "⬇️"]
 
             try:
-                reaction, _ = await bot.wait_for("reaction_add", check=check, timeout=60.0)
+                reaction, _ = await bot.wait_for("reaction_add", check=check, timeout=300.0)
             except asyncio.TimeoutError:
                 await ctx.send(f"{ctx.author.mention}, you took too long! You lost your bet of {bet} bux.")
                 return
@@ -804,10 +918,10 @@ async def hl(ctx, bet: float):
 
             if (guess == "higher" and next_value > current_value) or (guess == "lower" and next_value < current_value):
                 correct_guesses += 1
-                await ctx.send(f"✅ Correct! Next card was **{next_card}**.")
+                await ctx.send(f" {ctx.author.mention} ✅ Correct! Next card was **{next_card}**.")
 
                 if correct_guesses % 3 == 0:  # Every 3 correct guesses, allow cash-out
-                    await ctx.send(f"You've won **{multiplier}x** your bet so far! React with 💰 to cash out or 🔄 to continue.")
+                    await ctx.send(f"{ctx.author.mention} You've won **{multiplier}x** your bet so far! React with 💰 to cash out or 🔄 to continue.")
                     cashout_message = await ctx.send("💰 = Cash Out | 🔄 = Keep Going")
                     await cashout_message.add_reaction("💰")
                     await cashout_message.add_reaction("🔄")
@@ -830,20 +944,20 @@ async def hl(ctx, bet: float):
                         return
                     else:
                         multiplier *= 2  # Increase the multiplier
-                        await ctx.send(f"🔥 You continue! New multiplier is **{multiplier}x**.")
+                        await ctx.send(f"{ctx.author.mention} 🔥 You continue! New multiplier is **{multiplier}x**.")
 
                 current_card = next_card  # Move to next round
 
             elif current_value == next_value:
-                await ctx.send(f"😬 Tie! The next card was also **{next_card}**. You get a free retry!")
+                await ctx.send(f"{ctx.author.mention} 😬 Tie! The next card was also **{next_card}**. You get a free retry!")
 
             else:
-                await ctx.send(f"❌ Wrong! The next card was **{next_card}**. You lost your bet of {bet} bux.")
+                await ctx.send(f"{ctx.author.mention} ❌ Wrong! The next card was **{next_card}**. You lost your bet of {bet} bux.")
                 return
 
     finally:
         open_bets[player_id] = False  # Ensure the bet is cleared even if there's an error
-
+        await assign_role_based_on_bux(ctx, ctx.author)
 
 #Parleys
 GAMER_NAMES = [
@@ -890,7 +1004,7 @@ def save_gamers(gamers):
             json.dump(gamers, f, indent=4)
 
 @bot.command()
-async def p(ctx, amount: float):
+async def p(ctx, amount: str):
     """Place a parley on 3 players to get the most points"""
     user_id = str(ctx.author.id)
     player_id = ctx.author.id
@@ -898,6 +1012,16 @@ async def p(ctx, amount: float):
     bux_data = load_bux(user_id)
     user_parley = load_user_parley(user_id)
 
+    if amount.lower() == "all":
+        amount = bux_data["bux"]  # Set the amount to all remaining bux
+    else:
+        # Check if the amount can be converted to a float
+        try:
+            amount = float(amount.replace(",", ""))
+        except ValueError:
+            await ctx.send(f"{ctx.author.mention}, please provide a valid number for the amount.")
+            return
+        
     if user_parley:
         await ctx.send(f"{ctx.author.mention}, you've already placed a bet today.")
         return
@@ -1016,4 +1140,4 @@ async def sp(ctx):
 async def on_ready():
     await daily_event()
 
-bot.run('Your Token Here')
+bot.run('MTM0MzY4NTk3NjMyMDYzODk3Ng.GJYU_I.jfwLSel5unUwM5aWvU_hXlOuXtI4_LsQQHu68I')
