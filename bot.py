@@ -1140,4 +1140,4 @@ async def sp(ctx):
 async def on_ready():
     await daily_event()
 
-bot.run('MTM0MzY4NTk3NjMyMDYzODk3Ng.GJYU_I.jfwLSel5unUwM5aWvU_hXlOuXtI4_LsQQHu68I')
+bot.run('Token Here')
